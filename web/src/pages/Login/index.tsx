@@ -30,39 +30,47 @@ export default function Login() {
   }
 
   return (
-    <div className="page">
+    <div className="page login-page">
+      <div className="login-blob login-blob--1" />
+      <div className="login-blob login-blob--2" />
+      <div className="login-blob login-blob--3" />
       <div
         className="page-content"
         style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 24px' }}
       >
-        <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <div style={{ fontSize: 28, fontWeight: 600 }}>一起花</div>
-          <div style={{ color: 'var(--adm-color-weak, #999)', marginTop: 12, lineHeight: 1.8 }}>
-            多人多币种，一起记账
-            <br />
-            自动换算汇率、一键结算欠款
-            <br />
-            支出分类报表一目了然
+        <div className="login-card">
+          <div className="login-logo">
+            <img src="/icon.png" alt="一起花" />
           </div>
+          <div style={{ textAlign: 'center', marginBottom: 28 }}>
+            <div style={{ fontSize: 26, fontWeight: 700, letterSpacing: 1 }}>一起花</div>
+            <div style={{ color: 'var(--adm-color-weak, #888)', marginTop: 12, lineHeight: 1.8, fontSize: 13 }}>
+              多人多币种，一起记账
+              <br />
+              自动换算汇率、一键结算欠款
+              <br />
+              支出分类报表一目了然
+            </div>
+          </div>
+          <Input
+            placeholder="请输入 API Key"
+            type="password"
+            clearable
+            value={apiKey}
+            onChange={setApiKeyInput}
+            onEnterPress={handleLogin}
+            style={{
+              fontSize: 16,
+              background: '#fff',
+              padding: '10px 12px',
+              borderRadius: 10,
+              marginBottom: 16,
+            }}
+          />
+          <Button block color="primary" loading={loading} onClick={handleLogin} style={{ borderRadius: 10 }}>
+            登录
+          </Button>
         </div>
-        <Input
-          placeholder="请输入 API Key"
-          type="password"
-          clearable
-          value={apiKey}
-          onChange={setApiKeyInput}
-          onEnterPress={handleLogin}
-          style={{
-            fontSize: 16,
-            background: '#fff',
-            padding: '10px 12px',
-            borderRadius: 8,
-            marginBottom: 16,
-          }}
-        />
-        <Button block color="primary" loading={loading} onClick={handleLogin}>
-          登录
-        </Button>
       </div>
     </div>
   )

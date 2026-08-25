@@ -49,7 +49,7 @@ export default function MembersTab() {
 
   return (
     <>
-      <List header={`成员（${ledger.participants.length}）`}>
+      <List className="list-card" header={`成员（${ledger.participants.length}）`}>
         {ledger.participants.map((p) => (
           <SwipeAction
             key={p.id}

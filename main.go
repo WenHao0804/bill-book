@@ -5,6 +5,8 @@ package main
 import (
 	"context"
 	"embed"
+	"fmt"
+	"mime"
 	"path/filepath"
 	"strings"
 
@@ -39,6 +41,7 @@ func main() {
 	router.GeneratedRegister(h)
 	customizedRegister(h)
 	staticFs(h)
+	fmt.Printf("server running on %v\n", conf.GetConfig().Server.Port)
 
 	h.Spin()
 }
@@ -73,12 +76,25 @@ func staticFs(h *server.Hertz) {
 	})
 
 	// SPA fallback for all other GET requests, excluding the /api prefix.
+	// Root-level static files (icon.png, icons.svg, etc.) are served directly
+	// from the embedded build output; anything else falls back to index.html.
 	h.GET("/*any", func(c context.Context, ctx *app.RequestContext) {
 		path := string(ctx.Path())
 		if strings.HasPrefix(path, "/api") {
 			ctx.SetStatusCode(consts.StatusNotFound)
 			return
 		}
+
+		if path != "/" {
+			if content, err := buildFS.ReadFile(filepath.Join("web/dist", path)); err == nil {
+				if ct := mime.TypeByExtension(filepath.Ext(path)); ct != "" {
+					ctx.Header("Content-Type", ct)
+				}
+				ctx.Write(content)
+				return
+			}
+		}
+
 		ctx.Header("Content-Type", "text/html; charset=utf-8")
 		ctx.Header("Cache-Control", "no-cache")
 		ctx.Write(indexPage)

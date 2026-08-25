@@ -49,11 +49,12 @@ export default function LedgerDetail() {
 
   return (
     <div className="page">
-      <NavBar onBack={() => navigate('/')}>{ledger.name}</NavBar>
+      <NavBar className="app-navbar" onBack={() => navigate('/')}>{ledger.name}</NavBar>
       <div className="page-content">
         <Outlet context={{ ledger, ledgerId: id! } satisfies LedgerOutletContext} />
       </div>
       <TabBar
+        className="app-tabbar"
         activeKey={activeKey}
         safeArea
         onChange={(key) => navigate(`/ledger/${id}/${key}`)}

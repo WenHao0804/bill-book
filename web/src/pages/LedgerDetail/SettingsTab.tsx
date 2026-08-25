@@ -70,29 +70,31 @@ export default function SettingsTab() {
 
   return (
     <>
-      <Form
-        layout="horizontal"
-        initialValues={{ name: ledger.name, description: ledger.description }}
-        onFinish={(values) => updateInfoMutation.mutate({ id: ledgerId, name: values.name, description: values.description })}
-        footer={
-          <Button block color="primary" type="submit" loading={updateInfoMutation.isPending}>
-            保存基本信息
-          </Button>
-        }
-      >
-        <Form.Header>账本信息</Form.Header>
-        <Form.Item name="name" label="名称" rules={[{ required: true, message: '请输入名称' }]}>
-          <Input placeholder="账本名称" />
-        </Form.Item>
-        <Form.Item name="description" label="描述">
-          <Input placeholder="选填" />
-        </Form.Item>
-        <Form.Item label="本位币">
-          <Input value={ledger.base_currency} disabled />
-        </Form.Item>
-      </Form>
+      <div className="list-card">
+        <Form
+          layout="horizontal"
+          initialValues={{ name: ledger.name, description: ledger.description }}
+          onFinish={(values) => updateInfoMutation.mutate({ id: ledgerId, name: values.name, description: values.description })}
+          footer={
+            <Button block color="primary" type="submit" loading={updateInfoMutation.isPending}>
+              保存基本信息
+            </Button>
+          }
+        >
+          <Form.Header>账本信息</Form.Header>
+          <Form.Item name="name" label="名称" rules={[{ required: true, message: '请输入名称' }]}>
+            <Input placeholder="账本名称" />
+          </Form.Item>
+          <Form.Item name="description" label="描述">
+            <Input placeholder="选填" />
+          </Form.Item>
+          <Form.Item label="本位币">
+            <Input value={ledger.base_currency} disabled />
+          </Form.Item>
+        </Form>
+      </div>
 
-      <List header={`汇率表（其他币种 → ${ledger.base_currency}）`} style={{ marginTop: 12 }}>
+      <List className="list-card" header={`汇率表（其他币种 → ${ledger.base_currency}）`}>
         {rates.map((r) => (
           <SwipeAction
             key={r.currency}
@@ -113,7 +115,7 @@ export default function SettingsTab() {
         </List.Item>
       </List>
 
-      <List header="账本管理" style={{ marginTop: 12 }}>
+      <List className="list-card" header="账本管理">
         <List.Item
           extra={
             <Switch
@@ -128,7 +130,7 @@ export default function SettingsTab() {
         </List.Item>
       </List>
 
-      <div style={{ padding: '24px 16px' }}>
+      <div style={{ padding: '24px 0' }}>
         <Button
           block
           color="danger"

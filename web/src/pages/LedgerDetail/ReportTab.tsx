@@ -110,7 +110,7 @@ export default function ReportTab() {
     .slice(0, 5)
 
   return (
-    <div style={{ padding: '12px 16px 32px' }}>
+    <div style={{ padding: '12px 0 32px' }}>
       <div style={{ textAlign: 'center', marginBottom: 20 }}>
         <div style={{ fontSize: 13, color: 'var(--adm-color-weak)' }}>总支出（{ledger.base_currency}）</div>
         <div style={{ fontSize: 28, fontWeight: 600 }}>{formatMoney(report.total_in_base, ledger.base_currency)}</div>
@@ -227,7 +227,7 @@ export default function ReportTab() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div style={{ background: '#fff', borderRadius: 10, padding: '12px 12px 4px', marginBottom: 12 }}>
+    <div className="card" style={{ padding: '12px 12px 4px', marginBottom: 12 }}>
       <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>{title}</div>
       {children}
     </div>

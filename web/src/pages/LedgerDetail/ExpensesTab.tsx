@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate, useOutletContext } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { List, SwipeAction, Empty, FloatingBubble, Toast, Dialog, Tag, ActionSheet } from 'antd-mobile'
-import { AddOutline, DownFill } from 'antd-mobile-icons'
+import { AddOutline, DownFill, LockOutline } from 'antd-mobile-icons'
 import { listExpenses, deleteExpense } from '../../api/expense'
 import { CATEGORY_LABELS } from '../../types/bill_book'
 import { formatMoney } from '../../utils/money'
@@ -64,13 +64,19 @@ export default function ExpensesTab() {
       {ledger.locked && (
         <div
           style={{
-            padding: '8px 16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+            marginTop: 8,
+            padding: '8px 12px',
             fontSize: 13,
             color: 'var(--adm-color-weak)',
             background: 'var(--adm-color-fill-content)',
+            borderRadius: 10,
           }}
         >
-          🔒 账本已锁定，无法新增或修改支出
+          <LockOutline />
+          账本已锁定，无法新增或修改支出
         </div>
       )}
       {sorted.length > 0 && (
@@ -81,7 +87,7 @@ export default function ExpensesTab() {
             alignItems: 'center',
             justifyContent: 'flex-end',
             gap: 4,
-            padding: '8px 16px',
+            padding: '8px 4px',
             fontSize: 13,
             color: 'var(--adm-color-weak)',
           }}
@@ -94,7 +100,7 @@ export default function ExpensesTab() {
         <Empty description="还没有支出记录" style={{ padding: '64px 0' }} />
       )}
       {sorted.length > 0 && (
-        <List>
+        <List className="list-card">
           {sorted.map((expense) => (
             <SwipeAction
               key={expense.id}

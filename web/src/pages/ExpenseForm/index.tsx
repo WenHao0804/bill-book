@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { NavBar, List, Input, Selector, Button, Toast, SpinLoading, DatePicker, TextArea, Picker } from 'antd-mobile'
+import { LockOutline } from 'antd-mobile-icons'
 import { getLedger } from '../../api/ledger'
 import { getExpense, createExpense, updateExpense } from '../../api/expense'
 import { ExpenseSplitType, ExpenseCategory, CATEGORY_OPTIONS } from '../../types/bill_book'
@@ -149,21 +150,27 @@ export default function ExpenseForm() {
 
   return (
     <div className="page">
-      <NavBar onBack={() => navigate(-1)}>{isEdit ? '编辑支出' : '新建支出'}</NavBar>
+      <NavBar className="app-navbar" onBack={() => navigate(-1)}>{isEdit ? '编辑支出' : '新建支出'}</NavBar>
       <div className="page-content">
         {locked && (
           <div
             style={{
-              padding: '8px 16px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              marginTop: 8,
+              padding: '8px 12px',
               fontSize: 13,
               color: 'var(--adm-color-weak)',
               background: 'var(--adm-color-fill-content)',
+              borderRadius: 10,
             }}
           >
-            🔒 账本已锁定，仅可查看
+            <LockOutline />
+            账本已锁定，仅可查看
           </div>
         )}
-        <List header="金额">
+        <List className="list-card" header="金额">
           <List.Item>
             <Input
               placeholder="0.00"
@@ -179,7 +186,7 @@ export default function ExpenseForm() {
           </List.Item>
         </List>
 
-        <List header="付款人" style={{ marginTop: 12 }}>
+        <List className="list-card" header="付款人">
           <List.Item>
             <Selector
               disabled={locked}
@@ -190,7 +197,7 @@ export default function ExpenseForm() {
           </List.Item>
         </List>
 
-        <List header="参与分摊" style={{ marginTop: 12 }}>
+        <List className="list-card" header="参与分摊">
           <List.Item>
             <Selector
               disabled={locked}
@@ -234,14 +241,14 @@ export default function ExpenseForm() {
             })}
           {splitType === ExpenseSplitType.Custom && (
             <List.Item>
-              <span style={{ color: Math.abs(customSum - parsedAmount) > 0.01 ? '#ff3141' : '#00b578', fontSize: 13 }}>
+              <span style={{ color: Math.abs(customSum - parsedAmount) > 0.01 ? 'var(--negative-color)' : 'var(--positive-color)', fontSize: 13 }}>
                 合计 {customSum.toFixed(2)} / {isNaN(parsedAmount) ? '0.00' : parsedAmount.toFixed(2)}
               </span>
             </List.Item>
           )}
         </List>
 
-        <List header="分类与备注" style={{ marginTop: 12 }}>
+        <List className="list-card" header="分类与备注">
           <List.Item>
             <Selector
               disabled={locked}
@@ -258,7 +265,7 @@ export default function ExpenseForm() {
           </List.Item>
         </List>
 
-        <div style={{ padding: '24px 16px' }}>
+        <div style={{ padding: '24px 0' }}>
           <Button block color="primary" loading={saving} disabled={locked} onClick={handleSubmit}>
             保存
           </Button>

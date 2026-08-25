@@ -42,7 +42,7 @@ export default function LedgerList() {
 
   return (
     <div className="page">
-      <NavBar back={null} right={<span onClick={handleLogout}>退出</span>}>
+      <NavBar className="app-navbar" back={null} right={<span onClick={handleLogout}>退出</span>}>
         我的账本
       </NavBar>
       <div className="page-content">
@@ -50,7 +50,7 @@ export default function LedgerList() {
           <Empty description="还没有账本，点击右下角创建一个" style={{ padding: '64px 0' }} />
         )}
         {ledgers.length > 0 && (
-          <List>
+          <List className="list-card">
             {ledgers.map((ledger) => (
               <List.Item
                 key={ledger.id}
