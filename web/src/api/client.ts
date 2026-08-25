@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { clearApiKey, getApiKey } from '../utils/auth'
 
 export class ApiError extends Error {
   code: number
@@ -9,14 +10,30 @@ export class ApiError extends Error {
   }
 }
 
+const UNAUTHORIZED_CODE = 20102
+
 export const client = axios.create({
   baseURL: '/api/v1',
 })
+
+client.interceptors.request.use((config) => {
+  const key = getApiKey()
+  if (key) config.headers.set('X-Api-Key', key)
+  return config
+})
+
+function handleUnauthorized() {
+  clearApiKey()
+  if (window.location.pathname !== '/login') {
+    window.location.href = '/login'
+  }
+}
 
 client.interceptors.response.use(
   (response) => {
     const data = response.data as { code: number; msg: string }
     if (data && typeof data.code === 'number' && data.code !== 0) {
+      if (data.code === UNAUTHORIZED_CODE) handleUnauthorized()
       return Promise.reject(new ApiError(data.code, data.msg))
     }
     return response
@@ -24,6 +41,7 @@ client.interceptors.response.use(
   (error) => {
     if (error.response) {
       const data = error.response.data as { code?: number; msg?: string } | undefined
+      if (data?.code === UNAUTHORIZED_CODE) handleUnauthorized()
       if (data?.msg) return Promise.reject(new ApiError(data.code ?? -1, data.msg))
       return Promise.reject(new ApiError(-1, `请求失败（${error.response.status}）`))
     }

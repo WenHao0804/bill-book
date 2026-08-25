@@ -21,6 +21,7 @@ type Config struct {
 	Mongo  Mongo  `yaml:"mongo"`
 	Redis  Redis  `yaml:"redis"`
 	Logger Logger `yaml:"logger"`
+	ApiKey string `env:"API_KEY"`
 }
 
 type Server struct {
@@ -72,6 +73,10 @@ func Init() {
 
 	if err := cleanenv.ReadEnv(&ConfigData); err != nil {
 		panic(fmt.Sprintf("读取环境变量失败：%s", err))
+	}
+
+	if ConfigData.ApiKey == "" {
+		panic("必须通过环境变量 API_KEY 设置接口鉴权密钥")
 	}
 }
 

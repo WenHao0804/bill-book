@@ -7,11 +7,13 @@ import SettlementTab from './pages/LedgerDetail/SettlementTab'
 import MembersTab from './pages/LedgerDetail/MembersTab'
 import SettingsTab from './pages/LedgerDetail/SettingsTab'
 import ExpenseForm from './pages/ExpenseForm'
+import Login from './pages/Login'
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/login" element={<Login />} />
         <Route path="/" element={<LedgerList />} />
         <Route path="/ledger/:id" element={<LedgerDetail />}>
           <Route index element={<Navigate to="expenses" replace />} />

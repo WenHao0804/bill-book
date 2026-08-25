@@ -3,6 +3,8 @@
 package bill_book
 
 import (
+	"bill-book/middleware"
+
 	"github.com/cloudwego/hertz/pkg/app"
 )
 
@@ -12,8 +14,7 @@ func rootMw() []app.HandlerFunc {
 }
 
 func _apiMw() []app.HandlerFunc {
-	// your code...
-	return nil
+	return []app.HandlerFunc{middleware.Auth()}
 }
 
 func _v1Mw() []app.HandlerFunc {

@@ -151,8 +151,15 @@ export default function ReportTab() {
             <XAxis type="number" hide />
             <YAxis type="category" dataKey="name" width={60} />
             <Tooltip
-              content={(props) => (
-                <MemberCategoryTooltip {...props} formatValue={(v: number) => formatMoney(v, ledger.base_currency)} />
+              content={({ active, label, payload }) => (
+                <MemberCategoryTooltip
+                  active={active}
+                  label={label !== undefined ? String(label) : undefined}
+                  payload={
+                    payload as unknown as { name?: string; value?: number; color?: string }[] | undefined
+                  }
+                  formatValue={(v: number) => formatMoney(v, ledger.base_currency)}
+                />
               )}
             />
             {presentCategories.map((c, i) => (

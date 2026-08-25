@@ -8,7 +8,8 @@ type BizCode struct {
 var (
 	ResSuccess = BizCode{0, "success"}
 
-	InvalidParam = BizCode{20101, "无效参数"}
+	InvalidParam    = BizCode{20101, "无效参数"}
+	ErrUnauthorized = BizCode{20102, "未授权，请检查 API Key"}
 
 	ErrLedgerNotFound      = BizCode{20201, "账本不存在"}
 	ErrParticipantNotFound = BizCode{20202, "参与人不存在"}

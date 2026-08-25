@@ -5,6 +5,7 @@ import { List, NavBar, Empty, FloatingBubble, Popup, Form, Input, Selector, Butt
 import { AddOutline } from 'antd-mobile-icons'
 import { createLedger, listLedgers } from '../../api/ledger'
 import { OTHER_CURRENCY, currencySelectorOptions } from '../../utils/currency'
+import { clearApiKey } from '../../utils/auth'
 
 export default function LedgerList() {
   const navigate = useNavigate()
@@ -33,9 +34,17 @@ export default function LedgerList() {
 
   const ledgers = data?.ledgers ?? []
 
+  const handleLogout = () => {
+    clearApiKey()
+    queryClient.clear()
+    navigate('/login', { replace: true })
+  }
+
   return (
     <div className="page">
-      <NavBar back={null}>我的账本</NavBar>
+      <NavBar back={null} right={<span onClick={handleLogout}>退出</span>}>
+        我的账本
+      </NavBar>
       <div className="page-content">
         {!isLoading && ledgers.length === 0 && (
           <Empty description="还没有账本，点击右下角创建一个" style={{ padding: '64px 0' }} />
