@@ -1,18 +1,23 @@
 import { useState } from 'react'
 import { useNavigate, useOutletContext } from 'react-router-dom'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { List, Form, Input, Button, Toast, Dialog, SwipeAction, Stepper } from 'antd-mobile'
-import { AddOutline } from 'antd-mobile-icons'
+import { List, Form, Input, Selector, Stepper, Button, Toast, Dialog, SwipeAction, Popup } from 'antd-mobile'
 import { updateLedger, deleteLedger, updateExchangeRates } from '../../api/ledger'
+import { OTHER_CURRENCY, currencySelectorOptions } from '../../utils/currency'
 import type { LedgerOutletContext } from './index'
 
 export default function SettingsTab() {
   const { ledger, ledgerId } = useOutletContext<LedgerOutletContext>()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const [newCurrency, setNewCurrency] = useState('')
+  const [addRateVisible, setAddRateVisible] = useState(false)
+  const [currencyChoice, setCurrencyChoice] = useState('')
+  const [customCurrency, setCustomCurrency] = useState('')
   const [newRate, setNewRate] = useState(1)
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false)
+
+  const rates = ledger.exchange_rates.filter((r) => r.currency !== ledger.base_currency)
+  const newCurrency = currencyChoice === OTHER_CURRENCY ? customCurrency.trim().toUpperCase() : currencyChoice
 
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ['ledger', ledgerId] })
@@ -32,7 +37,9 @@ export default function SettingsTab() {
     mutationFn: updateExchangeRates,
     onSuccess: () => {
       Toast.show({ icon: 'success', content: '已保存' })
-      setNewCurrency('')
+      setAddRateVisible(false)
+      setCurrencyChoice('')
+      setCustomCurrency('')
       setNewRate(1)
       invalidate()
     },
@@ -46,8 +53,6 @@ export default function SettingsTab() {
       navigate('/')
     },
   })
-
-  const rates = ledger.exchange_rates.filter((r) => r.currency !== ledger.base_currency)
 
   const saveRate = (currency: string, rate_to_base: number) => {
     const next = rates.filter((r) => r.currency !== currency)
@@ -95,28 +100,7 @@ export default function SettingsTab() {
             <List.Item extra={`1 ${r.currency} = ${r.rate_to_base} ${ledger.base_currency}`}>{r.currency}</List.Item>
           </SwipeAction>
         ))}
-        <List.Item
-          extra={
-            <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Input
-                placeholder="币种，如 USD"
-                value={newCurrency}
-                onChange={(v) => setNewCurrency(v.toUpperCase())}
-                style={{ width: 70, textAlign: 'right' }}
-              />
-              <Stepper value={newRate} min={0.0001} step={0.01} digits={4} onChange={(v) => setNewRate(v)} style={{ '--input-width': '70px' }} />
-              <Button
-                size="small"
-                color="primary"
-                fill="outline"
-                disabled={!newCurrency || ratesMutation.isPending}
-                onClick={() => saveRate(newCurrency, newRate)}
-              >
-                <AddOutline />
-              </Button>
-            </span>
-          }
-        >
+        <List.Item onClick={() => setAddRateVisible(true)} arrow>
           添加汇率
         </List.Item>
       </List>
@@ -131,6 +115,47 @@ export default function SettingsTab() {
           删除账本
         </Button>
       </div>
+
+      <Popup
+        visible={addRateVisible}
+        onMaskClick={() => setAddRateVisible(false)}
+        onClose={() => setAddRateVisible(false)}
+        bodyStyle={{ borderTopLeftRadius: 12, borderTopRightRadius: 12 }}
+      >
+        <List header={`添加汇率（→ ${ledger.base_currency}）`}>
+          <List.Item>
+            <Selector
+              columns={4}
+              options={currencySelectorOptions([ledger.base_currency, ...rates.map((r) => r.currency)])}
+              value={currencyChoice ? [currencyChoice] : []}
+              onChange={(v) => setCurrencyChoice((v[0] as string) ?? '')}
+            />
+          </List.Item>
+          {currencyChoice === OTHER_CURRENCY && (
+            <List.Item>
+              <Input
+                placeholder="输入币种代码，如 SGD"
+                value={customCurrency}
+                onChange={(v) => setCustomCurrency(v.toUpperCase())}
+              />
+            </List.Item>
+          )}
+          <List.Item extra={`1 ${newCurrency || '?'} =`}>
+            <Stepper value={newRate} min={0.0001} step={0.01} digits={4} onChange={(v) => setNewRate(v)} />
+          </List.Item>
+        </List>
+        <div style={{ padding: '16px' }}>
+          <Button
+            block
+            color="primary"
+            loading={ratesMutation.isPending}
+            disabled={!newCurrency}
+            onClick={() => saveRate(newCurrency, newRate)}
+          >
+            保存
+          </Button>
+        </div>
+      </Popup>
 
       <Dialog
         visible={deleteConfirmVisible}

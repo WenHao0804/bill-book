@@ -1,16 +1,18 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { List, NavBar, Empty, FloatingBubble, Popup, Form, Input, Button, Toast } from 'antd-mobile'
+import { List, NavBar, Empty, FloatingBubble, Popup, Form, Input, Selector, Button, Toast } from 'antd-mobile'
 import { AddOutline } from 'antd-mobile-icons'
 import { createLedger, listLedgers } from '../../api/ledger'
-
-const COMMON_CURRENCIES = ['CNY', 'USD', 'EUR', 'JPY', 'HKD', 'GBP', 'THB', 'KRW']
+import { OTHER_CURRENCY, currencySelectorOptions } from '../../utils/currency'
 
 export default function LedgerList() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [createVisible, setCreateVisible] = useState(false)
+  const [currencyChoice, setCurrencyChoice] = useState('CNY')
+  const [customCurrency, setCustomCurrency] = useState('')
+  const baseCurrency = currencyChoice === OTHER_CURRENCY ? customCurrency.trim().toUpperCase() : currencyChoice
 
   const { data, isLoading } = useQuery({
     queryKey: ['ledgers'],
@@ -22,6 +24,8 @@ export default function LedgerList() {
     onSuccess: (resp) => {
       Toast.show({ icon: 'success', content: '账本已创建' })
       setCreateVisible(false)
+      setCurrencyChoice('CNY')
+      setCustomCurrency('')
       queryClient.invalidateQueries({ queryKey: ['ledgers'] })
       navigate(`/ledger/${resp.ledger.id}`)
     },
@@ -68,7 +72,7 @@ export default function LedgerList() {
         <Form
           layout="horizontal"
           footer={
-            <Button block color="primary" type="submit" loading={createMutation.isPending}>
+            <Button block color="primary" type="submit" loading={createMutation.isPending} disabled={!baseCurrency}>
               创建账本
             </Button>
           }
@@ -76,10 +80,9 @@ export default function LedgerList() {
             createMutation.mutate({
               name: values.name,
               description: values.description,
-              base_currency: values.base_currency,
+              base_currency: baseCurrency,
             })
           }}
-          initialValues={{ base_currency: 'CNY' }}
         >
           <Form.Header>新建账本</Form.Header>
           <Form.Item name="name" label="名称" rules={[{ required: true, message: '请输入账本名称' }]}>
@@ -88,14 +91,23 @@ export default function LedgerList() {
           <Form.Item name="description" label="描述">
             <Input placeholder="选填" />
           </Form.Item>
-          <Form.Item
-            name="base_currency"
-            label="本位币"
-            rules={[{ required: true, message: '请输入本位币' }]}
-            extra={COMMON_CURRENCIES.join(' / ')}
-          >
-            <Input placeholder="例如：CNY" />
+          <Form.Item label="本位币">
+            <Selector
+              columns={4}
+              options={currencySelectorOptions()}
+              value={[currencyChoice]}
+              onChange={(v) => setCurrencyChoice((v[0] as string) ?? 'CNY')}
+            />
           </Form.Item>
+          {currencyChoice === OTHER_CURRENCY && (
+            <Form.Item label="币种代码">
+              <Input
+                placeholder="例如：SGD"
+                value={customCurrency}
+                onChange={(v) => setCustomCurrency(v.toUpperCase())}
+              />
+            </Form.Item>
+          )}
         </Form>
       </Popup>
     </div>
