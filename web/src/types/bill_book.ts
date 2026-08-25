@@ -51,6 +51,7 @@ export interface Ledger {
   exchange_rates: ExchangeRate[]
   create_time: number
   update_time: number
+  locked: boolean
 }
 
 export interface ExpenseSplit {

@@ -62,6 +62,9 @@ func (s *LedgerService) UpdateLedger(ctx context.Context, req *bill_book.UpdateL
 	if req.IsSetDescription() {
 		set["description"] = req.GetDescription()
 	}
+	if req.IsSetLocked() {
+		set["locked"] = req.GetLocked()
+	}
 	if len(set) > 0 {
 		if err := mongo.LedgerDal.Update(ctx, ledgerId, set); err != nil {
 			if mongo.IsNoDocuments(err) {

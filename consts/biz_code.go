@@ -16,6 +16,7 @@ var (
 	ErrExpenseNotFound     = BizCode{20204, "支出记录不存在"}
 	ErrSplitAmountMismatch = BizCode{20205, "自定义分摊金额之和与支出总额不一致"}
 	ErrCurrencyRateMissing = BizCode{20206, "缺少该币种对本位币的汇率"}
+	ErrLedgerLocked        = BizCode{20207, "账本已锁定，无法修改支出记录"}
 
 	ErrSearchDb = BizCode{20301, "数据库查询失败"}
 	ErrCreateDb = BizCode{20302, "数据库写入失败"}

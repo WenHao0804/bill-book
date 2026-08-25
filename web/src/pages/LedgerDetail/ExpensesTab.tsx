@@ -61,6 +61,18 @@ export default function ExpensesTab() {
 
   return (
     <>
+      {ledger.locked && (
+        <div
+          style={{
+            padding: '8px 16px',
+            fontSize: 13,
+            color: 'var(--adm-color-weak)',
+            background: 'var(--adm-color-fill-content)',
+          }}
+        >
+          🔒 账本已锁定，无法新增或修改支出
+        </div>
+      )}
       {sorted.length > 0 && (
         <div
           onClick={showSortSheet}
@@ -86,14 +98,18 @@ export default function ExpensesTab() {
           {sorted.map((expense) => (
             <SwipeAction
               key={expense.id}
-              rightActions={[
-                {
-                  key: 'delete',
-                  text: '删除',
-                  color: 'danger',
-                  onClick: () => setDeleteTargetId(expense.id),
-                },
-              ]}
+              rightActions={
+                ledger.locked
+                  ? []
+                  : [
+                      {
+                        key: 'delete',
+                        text: '删除',
+                        color: 'danger',
+                        onClick: () => setDeleteTargetId(expense.id),
+                      },
+                    ]
+              }
             >
               <List.Item
                 onClick={() => navigate(`/ledger/${ledgerId}/expense/${expense.id}/edit`)}
@@ -145,8 +161,18 @@ export default function ExpensesTab() {
       />
 
       <FloatingBubble
-        style={{ '--initial-position-bottom': '84px', '--initial-position-right': '24px' } as React.CSSProperties}
-        onClick={() => navigate(`/ledger/${ledgerId}/expense/new`)}
+        style={
+          {
+            '--initial-position-bottom': '84px',
+            '--initial-position-right': '24px',
+            opacity: ledger.locked ? 0.4 : 1,
+          } as React.CSSProperties
+        }
+        onClick={() =>
+          ledger.locked
+            ? Toast.show({ content: '账本已锁定，无法新增支出' })
+            : navigate(`/ledger/${ledgerId}/expense/new`)
+        }
       >
         <AddOutline fontSize={28} />
       </FloatingBubble>

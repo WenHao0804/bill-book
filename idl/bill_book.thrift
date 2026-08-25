@@ -36,6 +36,7 @@ struct Ledger {
     6: list<ExchangeRate> exchange_rates
     7: i64 create_time
     8: i64 update_time
+    9: bool locked
 }
 
 struct ExpenseSplit {
@@ -116,6 +117,7 @@ struct UpdateLedgerReq {
     1: required string id
     2: optional string name
     3: optional string description
+    4: optional bool locked
 }
 struct UpdateLedgerResp { 1: i64 code, 2: string msg, 3: Ledger ledger }
 

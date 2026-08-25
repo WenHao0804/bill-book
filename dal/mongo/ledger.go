@@ -33,6 +33,7 @@ type TableLedger struct {
 	ExchangeRates []TableExchangeRate `bson:"exchange_rates"`
 	CreateTime    time.Time           `bson:"create_time"`
 	UpdateTime    time.Time           `bson:"update_time"`
+	Locked        bool                `bson:"locked"`
 }
 
 var LedgerDal = &ledgerDal{}

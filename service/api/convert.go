@@ -40,6 +40,7 @@ func toDTOLedger(l *mongo.TableLedger) *bill_book.Ledger {
 		ExchangeRates: rates,
 		CreateTime:    l.CreateTime.Unix(),
 		UpdateTime:    l.UpdateTime.Unix(),
+		Locked:        l.Locked,
 	}
 }
 

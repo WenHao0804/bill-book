@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, useOutletContext } from 'react-router-dom'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { List, Form, Input, Selector, Stepper, Button, Toast, Dialog, SwipeAction, Popup } from 'antd-mobile'
+import { List, Form, Input, Selector, Stepper, Button, Toast, Dialog, SwipeAction, Popup, Switch } from 'antd-mobile'
 import { updateLedger, deleteLedger, updateExchangeRates } from '../../api/ledger'
 import { OTHER_CURRENCY, currencySelectorOptions } from '../../utils/currency'
 import type { LedgerOutletContext } from './index'
@@ -41,6 +41,14 @@ export default function SettingsTab() {
       setCurrencyChoice('')
       setCustomCurrency('')
       setNewRate(1)
+      invalidate()
+    },
+  })
+
+  const lockMutation = useMutation({
+    mutationFn: updateLedger,
+    onSuccess: () => {
+      Toast.show({ icon: 'success', content: '已保存' })
       invalidate()
     },
   })
@@ -102,6 +110,21 @@ export default function SettingsTab() {
         ))}
         <List.Item onClick={() => setAddRateVisible(true)} arrow>
           添加汇率
+        </List.Item>
+      </List>
+
+      <List header="账本管理" style={{ marginTop: 12 }}>
+        <List.Item
+          extra={
+            <Switch
+              checked={ledger.locked}
+              loading={lockMutation.isPending}
+              onChange={(checked) => lockMutation.mutate({ id: ledgerId, locked: checked })}
+            />
+          }
+          description="锁定后将无法新增、编辑或删除支出记录"
+        >
+          锁定账本
         </List.Item>
       </List>
 

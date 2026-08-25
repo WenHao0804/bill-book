@@ -592,6 +592,7 @@ type Ledger struct {
 	ExchangeRates []*ExchangeRate `thrift:"exchange_rates,6,default,list<ExchangeRate>" form:"exchange_rates" json:"exchange_rates" query:"exchange_rates"`
 	CreateTime    int64           `thrift:"create_time,7" form:"create_time" json:"create_time" query:"create_time"`
 	UpdateTime    int64           `thrift:"update_time,8" form:"update_time" json:"update_time" query:"update_time"`
+	Locked        bool            `thrift:"locked,9" form:"locked" json:"locked" query:"locked"`
 }
 
 func NewLedger() *Ledger {
@@ -633,6 +634,10 @@ func (p *Ledger) GetUpdateTime() (v int64) {
 	return p.UpdateTime
 }
 
+func (p *Ledger) GetLocked() (v bool) {
+	return p.Locked
+}
+
 var fieldIDToName_Ledger = map[int16]string{
 	1: "id",
 	2: "name",
@@ -642,6 +647,7 @@ var fieldIDToName_Ledger = map[int16]string{
 	6: "exchange_rates",
 	7: "create_time",
 	8: "update_time",
+	9: "locked",
 }
 
 func (p *Ledger) Read(iprot thrift.TProtocol) (err error) {
@@ -722,6 +728,14 @@ func (p *Ledger) Read(iprot thrift.TProtocol) (err error) {
 		case 8:
 			if fieldTypeId == thrift.I64 {
 				if err = p.ReadField8(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 9:
+			if fieldTypeId == thrift.BOOL {
+				if err = p.ReadField9(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
@@ -868,6 +882,17 @@ func (p *Ledger) ReadField8(iprot thrift.TProtocol) error {
 	p.UpdateTime = _field
 	return nil
 }
+func (p *Ledger) ReadField9(iprot thrift.TProtocol) error {
+
+	var _field bool
+	if v, err := iprot.ReadBool(); err != nil {
+		return err
+	} else {
+		_field = v
+	}
+	p.Locked = _field
+	return nil
+}
 
 func (p *Ledger) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
@@ -905,6 +930,10 @@ func (p *Ledger) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField8(oprot); err != nil {
 			fieldId = 8
+			goto WriteFieldError
+		}
+		if err = p.writeField9(oprot); err != nil {
+			fieldId = 9
 			goto WriteFieldError
 		}
 	}
@@ -1075,6 +1104,23 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 8 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 8 end error: ", p), err)
+}
+
+func (p *Ledger) writeField9(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("locked", thrift.BOOL, 9); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := oprot.WriteBool(p.Locked); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 9 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 9 end error: ", p), err)
 }
 
 func (p *Ledger) String() string {
@@ -4503,6 +4549,7 @@ type UpdateLedgerReq struct {
 	ID          string  `thrift:"id,1,required" form:"id,required" json:"id,required" query:"id,required"`
 	Name        *string `thrift:"name,2,optional" form:"name" json:"name,omitempty" query:"name"`
 	Description *string `thrift:"description,3,optional" form:"description" json:"description,omitempty" query:"description"`
+	Locked      *bool   `thrift:"locked,4,optional" form:"locked" json:"locked,omitempty" query:"locked"`
 }
 
 func NewUpdateLedgerReq() *UpdateLedgerReq {
@@ -4534,10 +4581,20 @@ func (p *UpdateLedgerReq) GetDescription() (v string) {
 	return *p.Description
 }
 
+var UpdateLedgerReq_Locked_DEFAULT bool
+
+func (p *UpdateLedgerReq) GetLocked() (v bool) {
+	if !p.IsSetLocked() {
+		return UpdateLedgerReq_Locked_DEFAULT
+	}
+	return *p.Locked
+}
+
 var fieldIDToName_UpdateLedgerReq = map[int16]string{
 	1: "id",
 	2: "name",
 	3: "description",
+	4: "locked",
 }
 
 func (p *UpdateLedgerReq) IsSetName() bool {
@@ -4546,6 +4603,10 @@ func (p *UpdateLedgerReq) IsSetName() bool {
 
 func (p *UpdateLedgerReq) IsSetDescription() bool {
 	return p.Description != nil
+}
+
+func (p *UpdateLedgerReq) IsSetLocked() bool {
+	return p.Locked != nil
 }
 
 func (p *UpdateLedgerReq) Read(iprot thrift.TProtocol) (err error) {
@@ -4588,6 +4649,14 @@ func (p *UpdateLedgerReq) Read(iprot thrift.TProtocol) (err error) {
 		case 3:
 			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField3(iprot); err != nil {
+					goto ReadFieldError
+				}
+			} else if err = iprot.Skip(fieldTypeId); err != nil {
+				goto SkipFieldError
+			}
+		case 4:
+			if fieldTypeId == thrift.BOOL {
+				if err = p.ReadField4(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else if err = iprot.Skip(fieldTypeId); err != nil {
@@ -4661,6 +4730,17 @@ func (p *UpdateLedgerReq) ReadField3(iprot thrift.TProtocol) error {
 	p.Description = _field
 	return nil
 }
+func (p *UpdateLedgerReq) ReadField4(iprot thrift.TProtocol) error {
+
+	var _field *bool
+	if v, err := iprot.ReadBool(); err != nil {
+		return err
+	} else {
+		_field = &v
+	}
+	p.Locked = _field
+	return nil
+}
 
 func (p *UpdateLedgerReq) Write(oprot thrift.TProtocol) (err error) {
 	var fieldId int16
@@ -4678,6 +4758,10 @@ func (p *UpdateLedgerReq) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField3(oprot); err != nil {
 			fieldId = 3
+			goto WriteFieldError
+		}
+		if err = p.writeField4(oprot); err != nil {
+			fieldId = 4
 			goto WriteFieldError
 		}
 	}
@@ -4751,6 +4835,25 @@ WriteFieldBeginError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 begin error: ", p), err)
 WriteFieldEndError:
 	return thrift.PrependError(fmt.Sprintf("%T write field 3 end error: ", p), err)
+}
+
+func (p *UpdateLedgerReq) writeField4(oprot thrift.TProtocol) (err error) {
+	if p.IsSetLocked() {
+		if err = oprot.WriteFieldBegin("locked", thrift.BOOL, 4); err != nil {
+			goto WriteFieldBeginError
+		}
+		if err := oprot.WriteBool(*p.Locked); err != nil {
+			return err
+		}
+		if err = oprot.WriteFieldEnd(); err != nil {
+			goto WriteFieldEndError
+		}
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
 }
 
 func (p *UpdateLedgerReq) String() string {

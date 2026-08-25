@@ -65,6 +65,10 @@ func (s *ExpenseService) CreateExpense(ctx context.Context, req *bill_book.Creat
 		return nil, bizErr
 	}
 
+	if ledger.Locked {
+		return nil, consts.NewBizErrFromErr(consts.ErrLedgerLocked, nil)
+	}
+
 	amountInBase, bizErr := convertToBase(ledger, req.Currency, req.Amount)
 	if bizErr != nil {
 		return nil, bizErr
@@ -171,6 +175,10 @@ func (s *ExpenseService) UpdateExpense(ctx context.Context, req *bill_book.Updat
 		return nil, bizErr
 	}
 
+	if ledger.Locked {
+		return nil, consts.NewBizErrFromErr(consts.ErrLedgerLocked, nil)
+	}
+
 	amountInBase, bizErr := convertToBase(ledger, current.Currency, current.Amount)
 	if bizErr != nil {
 		return nil, bizErr
@@ -204,6 +212,17 @@ func (s *ExpenseService) DeleteExpense(ctx context.Context, req *bill_book.Delet
 	ledgerId, id, bizErr := parseLedgerAndExpenseId(req.LedgerID, req.ID)
 	if bizErr != nil {
 		return nil, bizErr
+	}
+
+	ledger, err := mongo.LedgerDal.Get(ctx, ledgerId)
+	if err != nil {
+		if mongo.IsNoDocuments(err) {
+			return nil, consts.NewBizErrFromErr(consts.ErrLedgerNotFound, nil)
+		}
+		return nil, consts.NewBizErrFromErr(consts.ErrSearchDb, err)
+	}
+	if ledger.Locked {
+		return nil, consts.NewBizErrFromErr(consts.ErrLedgerLocked, nil)
 	}
 
 	if err := mongo.ExpenseDal.Delete(ctx, ledgerId, id); err != nil {

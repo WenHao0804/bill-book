@@ -9,7 +9,7 @@ export function getLedger(id: string) {
   return post<{ ledger: Ledger }>('/ledger/get', { id })
 }
 
-export function updateLedger(body: { id: string; name?: string; description?: string }) {
+export function updateLedger(body: { id: string; name?: string; description?: string; locked?: boolean }) {
   return post<{ ledger: Ledger }>('/ledger/update', body)
 }
 

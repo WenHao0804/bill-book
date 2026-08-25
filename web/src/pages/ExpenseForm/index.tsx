@@ -145,11 +145,24 @@ export default function ExpenseForm() {
   const participantOptions = ledger.participants.map((p) => ({ label: p.name, value: p.id }))
   const currencyOptions = Array.from(new Set([ledger.base_currency, ...ledger.exchange_rates.map((r) => r.currency)]))
   const saving = createMutation.isPending || updateMutation.isPending
+  const locked = ledger.locked
 
   return (
     <div className="page">
       <NavBar onBack={() => navigate(-1)}>{isEdit ? '编辑支出' : '新建支出'}</NavBar>
       <div className="page-content">
+        {locked && (
+          <div
+            style={{
+              padding: '8px 16px',
+              fontSize: 13,
+              color: 'var(--adm-color-weak)',
+              background: 'var(--adm-color-fill-content)',
+            }}
+          >
+            🔒 账本已锁定，仅可查看
+          </div>
+        )}
         <List header="金额">
           <List.Item>
             <Input
@@ -157,10 +170,11 @@ export default function ExpenseForm() {
               type="number"
               value={amount}
               onChange={setAmount}
+              disabled={locked}
               style={{ fontSize: 22, fontWeight: 600 }}
             />
           </List.Item>
-          <List.Item onClick={() => setCurrencyPickerVisible(true)} extra={currency || '请选择'}>
+          <List.Item onClick={() => !locked && setCurrencyPickerVisible(true)} extra={currency || '请选择'}>
             币种
           </List.Item>
         </List>
@@ -168,6 +182,7 @@ export default function ExpenseForm() {
         <List header="付款人" style={{ marginTop: 12 }}>
           <List.Item>
             <Selector
+              disabled={locked}
               options={participantOptions}
               value={payerId ? [payerId] : []}
               onChange={(v) => setPayerId(v[0] ?? '')}
@@ -178,6 +193,7 @@ export default function ExpenseForm() {
         <List header="参与分摊" style={{ marginTop: 12 }}>
           <List.Item>
             <Selector
+              disabled={locked}
               multiple
               options={participantOptions}
               value={participantIds}
@@ -186,6 +202,7 @@ export default function ExpenseForm() {
           </List.Item>
           <List.Item>
             <Selector
+              disabled={locked}
               options={[
                 { label: '平均分摊', value: ExpenseSplitType.Equal },
                 { label: '自定义分摊', value: ExpenseSplitType.Custom },
@@ -206,6 +223,7 @@ export default function ExpenseForm() {
                       type="number"
                       value={customSplits[pid] ?? ''}
                       onChange={(v) => setCustomSplits((prev) => ({ ...prev, [pid]: v }))}
+                      disabled={locked}
                       style={{ textAlign: 'right', width: 90 }}
                     />
                   }
@@ -226,21 +244,22 @@ export default function ExpenseForm() {
         <List header="分类与备注" style={{ marginTop: 12 }}>
           <List.Item>
             <Selector
+              disabled={locked}
               options={CATEGORY_OPTIONS}
               value={[category]}
               onChange={(v) => setCategory((v[0] ?? ExpenseCategory.Other) as ExpenseCategory)}
             />
           </List.Item>
           <List.Item>
-            <TextArea placeholder="备注（选填）" value={note} onChange={setNote} rows={2} />
+            <TextArea placeholder="备注（选填）" value={note} onChange={setNote} disabled={locked} rows={2} />
           </List.Item>
-          <List.Item onClick={() => setDatePickerVisible(true)} extra={expenseDate.toLocaleDateString()}>
+          <List.Item onClick={() => !locked && setDatePickerVisible(true)} extra={expenseDate.toLocaleDateString()}>
             日期
           </List.Item>
         </List>
 
         <div style={{ padding: '24px 16px' }}>
-          <Button block color="primary" loading={saving} onClick={handleSubmit}>
+          <Button block color="primary" loading={saving} disabled={locked} onClick={handleSubmit}>
             保存
           </Button>
         </div>
