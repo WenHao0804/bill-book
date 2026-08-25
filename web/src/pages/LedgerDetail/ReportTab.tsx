@@ -28,9 +28,19 @@ export default function ReportTab() {
   const { ledger, ledgerId } = useOutletContext<LedgerOutletContext>()
   const [categoryMetric, setCategoryMetric] = useState<'paid' | 'share'>('paid')
   const [hiddenPieCategories, setHiddenPieCategories] = useState<Set<string>>(new Set())
+  const [hiddenBarCategories, setHiddenBarCategories] = useState<Set<string>>(new Set())
 
   const togglePieCategory = (name: string) => {
     setHiddenPieCategories((prev) => {
+      const next = new Set(prev)
+      if (next.has(name)) next.delete(name)
+      else next.add(name)
+      return next
+    })
+  }
+
+  const toggleBarCategory = (name: string) => {
+    setHiddenBarCategories((prev) => {
       const next = new Set(prev)
       if (next.has(name)) next.delete(name)
       else next.add(name)
@@ -162,19 +172,26 @@ export default function ReportTab() {
                 />
               )}
             />
-            {presentCategories.map((c, i) => (
-              <Bar
-                key={c}
-                dataKey={CATEGORY_LABELS[c]}
-                name={CATEGORY_LABELS[c]}
-                stackId="category"
-                fill={CATEGORY_COLORS[i % CATEGORY_COLORS.length]}
-                radius={i === presentCategories.length - 1 ? [0, 4, 4, 0] : undefined}
-              />
-            ))}
+            {presentCategories
+              .filter((c) => !hiddenBarCategories.has(CATEGORY_LABELS[c]))
+              .map((c, i, visible) => (
+                <Bar
+                  key={c}
+                  dataKey={CATEGORY_LABELS[c]}
+                  name={CATEGORY_LABELS[c]}
+                  stackId="category"
+                  fill={CATEGORY_COLORS[presentCategories.indexOf(c) % CATEGORY_COLORS.length]}
+                  radius={i === visible.length - 1 ? [0, 4, 4, 0] : undefined}
+                />
+              ))}
           </BarChart>
         </ResponsiveContainer>
-        <Legend items={categoryLegendItems} formatValue={(v) => formatMoney(v, ledger.base_currency)} />
+        <Legend
+          items={categoryLegendItems}
+          formatValue={(v) => formatMoney(v, ledger.base_currency)}
+          onItemClick={toggleBarCategory}
+          hiddenNames={hiddenBarCategories}
+        />
       </Section>
 
       {byDate.length > 1 && (

@@ -39,7 +39,7 @@ zip:
 # aws begin
 # ------------------------------
 AWS_SERVER_EXEC_ZIP = aws_server_exec.zip
-aws_server_exec:
+aws_server_exec: build
 	$(MAKE) zip ZIP_NAME=$(AWS_SERVER_EXEC_ZIP) MAIN_PATH=.
 # ------------------------------
 # aws end

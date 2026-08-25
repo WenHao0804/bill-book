@@ -78,6 +78,11 @@ body,
   border-top: 1px solid rgba(255, 255, 255, 0.6);
 }
 
+.recharts-wrapper *:focus,
+.recharts-wrapper *:focus-visible {
+  outline: none;
+}
+
 .login-page {
   position: relative;
   background: linear-gradient(160deg, #eef4ff 0%, #e6edff 45%, #eef7f1 100%);

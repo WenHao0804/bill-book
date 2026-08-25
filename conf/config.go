@@ -54,11 +54,11 @@ func GetConfig() Config {
 }
 
 func Init() {
+	godotenv.Load(filepath.Join(GetProjectPath(), ".env"))
 	env := os.Getenv(ModeEnvName)
 	if env == "" {
 		env = ModeEnvDev
 	}
-	godotenv.Load(filepath.Join(GetProjectPath(), ".env"))
 
 	filePath := fmt.Sprintf(filepath.Join(GetProjectPath(), "./conf/config_%s.yaml"), env)
 	fmt.Println("配置文件：" + filePath)
