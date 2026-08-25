@@ -13,6 +13,7 @@ export default function MembersTab() {
   const queryClient = useQueryClient()
   const [editing, setEditing] = useState<Participant | null>(null)
   const [creating, setCreating] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState<Participant | null>(null)
 
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ['ledger', ledgerId] })
@@ -57,12 +58,7 @@ export default function MembersTab() {
                 key: 'delete',
                 text: '删除',
                 color: 'danger',
-                onClick: () => {
-                  Dialog.confirm({
-                    content: `确定删除成员「${p.name}」吗？`,
-                    onConfirm: () => deleteMutation.mutate(p.id),
-                  })
-                },
+                onClick: () => setDeleteTarget(p),
               },
             ]}
           >
@@ -145,6 +141,25 @@ export default function MembersTab() {
           </Form>
         )}
       </Popup>
+
+      <Dialog
+        visible={deleteTarget !== null}
+        content={`确定删除成员「${deleteTarget?.name}」吗？`}
+        closeOnAction
+        actions={[
+          { key: 'cancel', text: '取消' },
+          {
+            key: 'confirm',
+            text: '删除',
+            danger: true,
+            onClick: () => {
+              if (deleteTarget) deleteMutation.mutate(deleteTarget.id)
+            },
+          },
+        ]}
+        onClose={() => setDeleteTarget(null)}
+        onAction={() => setDeleteTarget(null)}
+      />
     </>
   )
 }

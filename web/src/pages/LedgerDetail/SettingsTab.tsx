@@ -12,6 +12,7 @@ export default function SettingsTab() {
   const queryClient = useQueryClient()
   const [newCurrency, setNewCurrency] = useState('')
   const [newRate, setNewRate] = useState(1)
+  const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false)
 
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ['ledger', ledgerId] })
@@ -125,16 +126,28 @@ export default function SettingsTab() {
           block
           color="danger"
           fill="outline"
-          onClick={() => {
-            Dialog.confirm({
-              content: '确定删除该账本吗？此操作不可撤销，账本内的所有支出记录都会被删除。',
-              onConfirm: () => deleteMutation.mutate(),
-            })
-          }}
+          onClick={() => setDeleteConfirmVisible(true)}
         >
           删除账本
         </Button>
       </div>
+
+      <Dialog
+        visible={deleteConfirmVisible}
+        content="确定删除该账本吗？此操作不可撤销，账本内的所有支出记录都会被删除。"
+        closeOnAction
+        actions={[
+          { key: 'cancel', text: '取消' },
+          {
+            key: 'confirm',
+            text: '删除',
+            danger: true,
+            onClick: () => deleteMutation.mutate(),
+          },
+        ]}
+        onClose={() => setDeleteConfirmVisible(false)}
+        onAction={() => setDeleteConfirmVisible(false)}
+      />
     </>
   )
 }
