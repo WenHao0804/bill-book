@@ -35,10 +35,11 @@ type Mongo struct {
 }
 
 type Redis struct {
-	Addrs    []string `yaml:"addrs"`
+	Addrs    []string `yaml:"addrs" env:"REDIS_ADDRS"`
+	Cluster  bool     `yaml:"cluster" env:"REDIS_CLUSTER"`
 	Username string   `yaml:"username" env:"REDIS_USERNAME"`
 	Password string   `yaml:"password" env:"REDIS_PASSWORD"`
-	UseTls   bool     `yaml:"use_tls"`
+	UseTls   bool     `yaml:"use_tls" env:"REDIS_USE_TLS"`
 }
 
 type Logger struct {

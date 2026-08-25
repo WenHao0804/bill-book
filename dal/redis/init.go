@@ -9,7 +9,7 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-var redisClient *redis.ClusterClient
+var redisClient redis.UniversalClient
 
 func Init() {
 	ctx := context.Background()
@@ -21,23 +21,34 @@ func Init() {
 		}
 	}
 
-	redisClient = redis.NewClusterClient(&redis.ClusterOptions{
-		Addrs:      config.Addrs,
-		Password:   config.Password,
-		Username:   config.Username,
-		MaxRetries: 3,
+	if config.Cluster {
+		redisClient = redis.NewClusterClient(&redis.ClusterOptions{
+			Addrs:      config.Addrs,
+			Password:   config.Password,
+			Username:   config.Username,
+			MaxRetries: 3,
 
-		TLSConfig: tlsConfig,
-	})
+			TLSConfig: tlsConfig,
+		})
+	} else {
+		redisClient = redis.NewClient(&redis.Options{
+			Addr:       config.Addrs[0],
+			Password:   config.Password,
+			Username:   config.Username,
+			MaxRetries: 3,
+
+			TLSConfig: tlsConfig,
+		})
+	}
 
 	err := redisClient.Ping(ctx).Err()
 	if err != nil {
 		panic(err)
 	}
 
-	hlog.CtxInfof(ctx, "init redis success")
+	hlog.CtxInfof(ctx, "init redis success, cluster=%v", config.Cluster)
 }
 
-func GetRdb() *redis.ClusterClient {
+func GetRdb() redis.UniversalClient {
 	return redisClient
 }

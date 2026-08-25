@@ -6,6 +6,7 @@ mongo:
   db_name: "bill-book"
 redis:
   addrs: ["127.0.0.1:17001"]
+  cluster: true
   username: ""
   password: ""
   use_tls: false
