@@ -1,12 +1,15 @@
+import { useState } from 'react'
 import { Outlet, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { NavBar, TabBar, SpinLoading } from 'antd-mobile'
+import { NavBar, TabBar, SpinLoading, ActionSheet } from 'antd-mobile'
+import type { Action } from 'antd-mobile/es/components/action-sheet'
 import {
   BillOutline,
   PieOutline,
   PayCircleOutline,
   TeamOutline,
   SetOutline,
+  MoreOutline,
 } from 'antd-mobile-icons'
 import { getLedger } from '../../api/ledger'
 import type { Ledger } from '../../types/bill_book'
@@ -14,6 +17,7 @@ import type { Ledger } from '../../types/bill_book'
 export interface LedgerOutletContext {
   ledger: Ledger
   ledgerId: string
+  setMoreActions: (actions: Action[]) => void
 }
 
 const TABS = [
@@ -28,6 +32,7 @@ export default function LedgerDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const location = useLocation()
+  const [moreActions, setMoreActions] = useState<Action[]>([])
 
   const { data, isLoading } = useQuery({
     queryKey: ['ledger', id],
@@ -49,9 +54,24 @@ export default function LedgerDetail() {
 
   return (
     <div className="page">
-      <NavBar className="app-navbar" onBack={() => navigate('/')}>{ledger.name}</NavBar>
+      <NavBar
+        className="app-navbar"
+        onBack={() => navigate('/')}
+        right={
+          moreActions.length > 0 ? (
+            <MoreOutline
+              fontSize={22}
+              onClick={() =>
+                ActionSheet.show({ actions: moreActions, cancelText: '取消', closeOnAction: true })
+              }
+            />
+          ) : undefined
+        }
+      >
+        {ledger.name}
+      </NavBar>
       <div className="page-content">
-        <Outlet context={{ ledger, ledgerId: id! } satisfies LedgerOutletContext} />
+        <Outlet context={{ ledger, ledgerId: id!, setMoreActions } satisfies LedgerOutletContext} />
       </div>
       <TabBar
         className="app-tabbar"

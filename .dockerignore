@@ -1,0 +1,12 @@
+.git
+.gitignore
+output/
+logs/
+*.log
+.env
+.claude
+.vscode
+.idea
+web/node_modules
+web/dist
+node_modules
