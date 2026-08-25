@@ -1,0 +1,14 @@
+server:
+  port: ":8800"
+  name: "bill-book"
+mongo:
+  addr: "mongodb://localhost:27017"
+  db_name: "bill-book"
+redis:
+  addrs: ["127.0.0.1:17001"]
+  username: ""
+  password: ""
+  use_tls: false
+logger:
+  log_path: "./logs/system"
+  log_level: "debug"
