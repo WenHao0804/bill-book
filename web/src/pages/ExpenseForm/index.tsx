@@ -271,8 +271,11 @@ export default function ExpenseForm() {
           <List.Item>
             <TextArea placeholder="备注（选填）" value={note} onChange={setNote} disabled={locked} rows={2} />
           </List.Item>
-          <List.Item onClick={() => !locked && setDatePickerVisible(true)} extra={expenseDate.toLocaleDateString()}>
-            日期
+          <List.Item
+            onClick={() => !locked && setDatePickerVisible(true)}
+            extra={`${expenseDate.toLocaleDateString()} ${expenseDate.getHours()}点`}
+          >
+            日期时间
           </List.Item>
         </List>
 
@@ -292,10 +295,18 @@ export default function ExpenseForm() {
       />
 
       <DatePicker
+        precision="hour"
         visible={datePickerVisible}
         value={expenseDate}
         onClose={() => setDatePickerVisible(false)}
-        onConfirm={(v) => setExpenseDate(v)}
+        onConfirm={(v) => {
+          const unchanged =
+            v.getFullYear() === expenseDate.getFullYear() &&
+            v.getMonth() === expenseDate.getMonth() &&
+            v.getDate() === expenseDate.getDate() &&
+            v.getHours() === expenseDate.getHours()
+          if (!unchanged) setExpenseDate(v)
+        }}
       />
     </div>
   )
