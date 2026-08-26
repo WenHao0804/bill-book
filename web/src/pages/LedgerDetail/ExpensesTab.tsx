@@ -169,7 +169,16 @@ export default function ExpensesTab() {
                   </span>
                 }
                 description={`${nameOf(expense.payer_id)} 付款 · ${new Date(expense.expense_time * 1000).toLocaleDateString()}`}
-                extra={formatMoney(expense.amount, expense.currency)}
+                extra={
+                  <div>
+                    <div>{formatMoney(expense.amount, expense.currency)}</div>
+                    {expense.currency !== ledger.base_currency && (
+                      <div style={{ fontSize: 12, color: 'var(--adm-color-weak)' }}>
+                        ≈ {formatMoney(expense.amount_in_base, ledger.base_currency)}
+                      </div>
+                    )}
+                  </div>
+                }
               />
             </SwipeAction>
           ))}

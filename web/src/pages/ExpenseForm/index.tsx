@@ -6,6 +6,7 @@ import { LockOutline } from 'antd-mobile-icons'
 import { getLedger } from '../../api/ledger'
 import { getExpense, createExpense, updateExpense } from '../../api/expense'
 import { ExpenseSplitType, ExpenseCategory, CATEGORY_OPTIONS } from '../../types/bill_book'
+import { formatMoney } from '../../utils/money'
 
 export default function ExpenseForm() {
   const { id: ledgerId, expenseId } = useParams<{ id: string; expenseId?: string }>()
@@ -148,6 +149,12 @@ export default function ExpenseForm() {
   const saving = createMutation.isPending || updateMutation.isPending
   const locked = ledger.locked
 
+  const rateToBase = ledger.exchange_rates.find((r) => r.currency === currency)?.rate_to_base
+  const amountInBase =
+    currency && currency !== ledger.base_currency && rateToBase && parsedAmount > 0
+      ? parsedAmount * rateToBase
+      : undefined
+
   return (
     <div className="page">
       <NavBar className="app-navbar" onBack={() => navigate(-1)}>{isEdit ? '编辑支出' : '新建支出'}</NavBar>
@@ -171,7 +178,11 @@ export default function ExpenseForm() {
           </div>
         )}
         <List className="list-card" header="金额">
-          <List.Item>
+          <List.Item
+            description={
+              amountInBase !== undefined ? `≈ ${formatMoney(amountInBase, ledger.base_currency)}` : undefined
+            }
+          >
             <Input
               placeholder="0.00"
               type="number"
