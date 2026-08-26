@@ -6,6 +6,9 @@ import { updateLedger, deleteLedger, updateExchangeRates } from '../../api/ledge
 import { OTHER_CURRENCY, currencySelectorOptions } from '../../utils/currency'
 import type { LedgerOutletContext } from './index'
 
+const roundRate = (n: number) => Math.round(n * 1e6) / 1e6
+const formatRate = (n: number) => roundRate(n).toString()
+
 export default function SettingsTab() {
   const { ledger, ledgerId } = useOutletContext<LedgerOutletContext>()
   const navigate = useNavigate()
@@ -14,10 +17,13 @@ export default function SettingsTab() {
   const [currencyChoice, setCurrencyChoice] = useState('')
   const [customCurrency, setCustomCurrency] = useState('')
   const [newRate, setNewRate] = useState(1)
+  const [addInverse, setAddInverse] = useState(false)
+  const [displayInverse, setDisplayInverse] = useState(false)
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false)
 
   const rates = ledger.exchange_rates.filter((r) => r.currency !== ledger.base_currency)
   const newCurrency = currencyChoice === OTHER_CURRENCY ? customCurrency.trim().toUpperCase() : currencyChoice
+  const effectiveRate = roundRate(addInverse ? (newRate > 0 ? 1 / newRate : 0) : newRate)
 
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ['ledger', ledgerId] })
@@ -41,6 +47,7 @@ export default function SettingsTab() {
       setCurrencyChoice('')
       setCustomCurrency('')
       setNewRate(1)
+      setAddInverse(false)
       invalidate()
     },
   })
@@ -94,7 +101,20 @@ export default function SettingsTab() {
         </Form>
       </div>
 
-      <List className="list-card" header={`汇率表（其他币种 → ${ledger.base_currency}）`}>
+      <List
+        className="list-card"
+        header={
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>{displayInverse ? `汇率表（${ledger.base_currency} → 其他币种）` : `汇率表（其他币种 → ${ledger.base_currency}）`}</span>
+            <span
+              onClick={() => setDisplayInverse((v) => !v)}
+              style={{ color: 'var(--adm-color-primary)', fontWeight: 400, cursor: 'pointer' }}
+            >
+              切换方向
+            </span>
+          </div>
+        }
+      >
         {rates.map((r) => (
           <SwipeAction
             key={r.currency}
@@ -107,7 +127,15 @@ export default function SettingsTab() {
               },
             ]}
           >
-            <List.Item extra={`1 ${r.currency} = ${r.rate_to_base} ${ledger.base_currency}`}>{r.currency}</List.Item>
+            <List.Item
+              extra={
+                displayInverse
+                  ? `1 ${ledger.base_currency} = ${formatRate(1 / r.rate_to_base)} ${r.currency}`
+                  : `1 ${r.currency} = ${formatRate(r.rate_to_base)} ${ledger.base_currency}`
+              }
+            >
+              {r.currency}
+            </List.Item>
           </SwipeAction>
         ))}
         <List.Item onClick={() => setAddRateVisible(true)} arrow>
@@ -165,7 +193,26 @@ export default function SettingsTab() {
               />
             </List.Item>
           )}
-          <List.Item extra={`1 ${newCurrency || '?'} =`}>
+          <List.Item
+            extra={
+              <span
+                onClick={() => setAddInverse((v) => !v)}
+                style={{ color: 'var(--adm-color-primary)', fontSize: 13, cursor: 'pointer' }}
+              >
+                切换方向
+              </span>
+            }
+          >
+            {addInverse ? `按 1 ${ledger.base_currency} 折算` : `按 1 ${newCurrency || '?'} 折算`}
+          </List.Item>
+          <List.Item
+            extra={addInverse ? newCurrency || '其他币种' : ledger.base_currency}
+            description={
+              newCurrency && newRate > 0
+                ? `= 1 ${newCurrency} ≈ ${formatRate(effectiveRate)} ${ledger.base_currency}`
+                : undefined
+            }
+          >
             <Stepper value={newRate} min={0.0001} step={0.01} digits={4} onChange={(v) => setNewRate(v)} />
           </List.Item>
         </List>
@@ -175,7 +222,7 @@ export default function SettingsTab() {
             color="primary"
             loading={ratesMutation.isPending}
             disabled={!newCurrency}
-            onClick={() => saveRate(newCurrency, newRate)}
+            onClick={() => saveRate(newCurrency, effectiveRate)}
           >
             保存
           </Button>
